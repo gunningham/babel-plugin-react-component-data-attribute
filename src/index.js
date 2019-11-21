@@ -59,7 +59,14 @@ export default function babelPluginReactComponentDataAttribute({types: t}) {
   }
 
   function shouldProcessPotentialComponent(path, name, state) {
-    if (!path.getFunctionParent().isProgram()) { return false; }
+    if (typeof path.scope.getProgramParent === 'function') {
+      if (!path.scope.getProgramParent()) {
+        return false;
+      }
+    } else if (!path.getFunctionParent() || !path.getFunctionParent().isProgram()) {
+      return false;
+    }
+
     if (path.parentPath.isAssignmentExpression()) { return false; }
 
     const {onlyRootComponents = false} = state.opts || {};
